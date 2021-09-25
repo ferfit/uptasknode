@@ -1,143 +1,160 @@
 //importacion de modelo
 const Proyectos = require('../models/Proyectos');
+const Tareas = require('../models/Tareas');
 
 
-exports.proyectosHome =  async (req, res) => {
+exports.proyectosHome = async (req, res) => {
     const proyectos = await Proyectos.findAll();
-    res.render('index',{
-        nombrePagina : 'Proyectos',
+    res.render('index', {
+        nombrePagina: 'Proyectos',
         proyectos
     });
 }
 
 //Crea un proyecto
-exports.formularioProyecto = async (req,res) => {
+exports.formularioProyecto = async (req, res) => {
 
     const proyectos = await Proyectos.findAll();
 
-    res.render('nuevoProyecto',{
-        nombrePagina :'Nuevo Proyecto',
+    res.render('nuevoProyecto', {
+        nombrePagina: 'Nuevo Proyecto',
         proyectos
     })
 }
 
 
-exports.nuevoProyecto = async (req,res) => {
-    
+exports.nuevoProyecto = async (req, res) => {
+
     const proyectos = await Proyectos.findAll();
 
     //validacion
-    const {nombre} = req.body;
+    const { nombre } = req.body;
 
     let errores = [];
 
-    if(!nombre){
-        errores.push({'texto':'Agrega un Nombre al Proyecto'})
+    if (!nombre) {
+        errores.push({ 'texto': 'Agrega un Nombre al Proyecto' })
     }
 
     // Si hay errores
-    if(errores.length > 0 ){
-        res.render('nuevoProyecto',{
-            nombrePagina : 'Nuevo Proyecto',
+    if (errores.length > 0) {
+        res.render('nuevoProyecto', {
+            nombrePagina: 'Nuevo Proyecto',
             errores,
             proyectos
         })
-    } else{
+    } else {
         //inserta en bbdd
-        
+
         await Proyectos.create({ nombre });
-        res.redirect('/');     
+        res.redirect('/');
     }
 
 }
 
-exports.proyectoPorUrl = async (req,res,next) => {
+exports.proyectoPorUrl = async (req, res, next) => {
 
+    //Trae proyectos para aside
     const proyectosPromise = Proyectos.findAll();
 
-    const proyectoPromise =  Proyectos.findOne({
-        where:{
-            url : req.params.url
+    //trae proyecto 
+    const proyectoPromise = Proyectos.findOne({
+        where: {
+            url: req.params.url
         }
     });
 
-    const [proyectos, proyecto] = await Promise.all([proyectosPromise,proyectoPromise ]);
+    const [proyectos, proyecto] = await Promise.all([proyectosPromise, proyectoPromise]);
 
-    if(!proyecto) return next();
+    //Consulta tareas del proyecto
+    const tareas = await Tareas.findAll({
+        where: {
+            proyectoId: proyecto.id
+        }
+        /* include: [
+            { model: Proyectos }
+        ] */
 
-    res.render('tareas',{
-        nombrePagina : 'Tareas del Proyecto',
+
+    });
+
+    if (!proyecto) return next();
+
+    //Renderiza vista
+    res.render('tareas', {
+        nombrePagina: 'Tareas del Proyecto',
         proyecto,
-        proyectos
-    }); 
+        proyectos,
+        tareas
+    });
 }
 
 exports.formularioEditar = async (req, res) => {
 
     const proyectosPromise = Proyectos.findAll();
 
-    const proyectoPromise =  Proyectos.findOne({
-        where:{
-            id : req.params.id
+    const proyectoPromise = Proyectos.findOne({
+        where: {
+            id: req.params.id
         }
     });
 
-    const [proyectos, proyecto] = await Promise.all([proyectosPromise,proyectoPromise ]);
-    
-    res.render('nuevoProyecto',{
-        nombrePagina : 'Editar Proyecto',
+    const [proyectos, proyecto] = await Promise.all([proyectosPromise, proyectoPromise]);
+
+    res.render('nuevoProyecto', {
+        nombrePagina: 'Editar Proyecto',
         proyectos,
         proyecto
     })
 }
 
-exports.actualizarProyecto = async (req,res) => {
-    
+exports.actualizarProyecto = async (req, res) => {
+
     const proyectos = await Proyectos.findAll();
 
     //validacion
-    const {nombre} = req.body;
+    const { nombre } = req.body;
 
     let errores = [];
 
-    if(!nombre){
-        errores.push({'texto':'Agrega un Nombre al Proyecto'})
+    if (!nombre) {
+        errores.push({ 'texto': 'Agrega un Nombre al Proyecto' })
     }
 
     // Si hay errores
-    if(errores.length > 0 ){
-        res.render('nuevoProyecto',{
-            nombrePagina : 'Nuevo Proyecto',
+    if (errores.length > 0) {
+        res.render('nuevoProyecto', {
+            nombrePagina: 'Nuevo Proyecto',
             errores,
             proyectos
         })
-    } else{
+    } else {
         //inserta en bbdd
-        
+
         await Proyectos.update(
-            { nombre :nombre},
-            {where: { id: req.params.id }}
+            { nombre: nombre },
+            { where: { id: req.params.id } }
         );
-        res.redirect('/');     
+        res.redirect('/');
     }
 
 }
 
-exports.eliminarProyecto = async (req,res,next) => {
+exports.eliminarProyecto = async (req, res, next) => {
     //console.log(req.params)
 
-    const {urlProyecto } = req.query;
+    const { urlProyecto } = req.query;
 
     const resultado = await Proyectos.destroy({
-        where:{
-            url : urlProyecto
+        where: {
+            url: urlProyecto
         }
     });
 
-    if(!resultado){
+    if (!resultado) {
         return next();
     }
-    
+
     res.status(200).send('Proyecto Eliminado Correctamente.');
 
 
