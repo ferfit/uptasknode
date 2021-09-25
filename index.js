@@ -10,6 +10,7 @@ const bodyParser = require('body-parser');
 const db = require('./config/db');
 //importacion de modelo
 require('./models/Proyectos');
+require('./models/Tareas');
 //helpers
 const helpers = require('./helpers');
 
