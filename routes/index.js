@@ -8,10 +8,10 @@ const proyectosController = require('../controllers/proyectosController');
 const tareasController = require('../controllers/tareasController');
 
 module.exports = function () {
-    //ruta para el home
+    //Ruta para el home
     router.get('/', proyectosController.proyectosHome);
     /*----------- proyectos -------------*/
-    //crear
+    //Crear
     router.get('/nuevo-proyecto',proyectosController.formularioProyecto);
     router.post('/nuevo-proyecto',
             body('nombre').not().isEmpty().trim().escape(), // sanitizacion
@@ -26,11 +26,13 @@ module.exports = function () {
     //Eliminar
     router.delete('/proyectos/:url',proyectosController.eliminarProyecto);
 
-        /*----------- tareas -------------*/
-        //crear
-        router.post('/proyectos/:url', tareasController.agregarTarea);
-        //actualizar
-        router.patch('/tareas/:id', tareasController.cambiarEstadoTarea);
+    /*----------- tareas -------------*/
+    //Crear
+    router.post('/proyectos/:url', tareasController.agregarTarea);
+    //Actualizar
+    router.patch('/tareas/:id', tareasController.cambiarEstadoTarea);
+    //Eliminar
+    router.delete('/tareas/:id', tareasController.eliminarTarea);
 
     return router;
 }
