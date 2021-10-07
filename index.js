@@ -13,6 +13,8 @@ const flash = require('connect-flash');
 //Requerimos express session y cookie parser
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
+//Autenticacion
+const passport = require('./config/passport');
 //Bd
 const db = require('./config/db');
 //Importacion de modelo
@@ -59,7 +61,11 @@ app.use(session({
     secret:'supersecreto',
     resave:true,
     saveUninitialized:false
-}))
+}));
+
+//Inicializamos autenticacion
+app.use(passport.initialize());
+app.use(passport.session());
 
 //pasar vardump a la app
 app.use((req, res, next)=>{

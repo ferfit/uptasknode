@@ -1,10 +1,22 @@
 const Usuarios = require('../models/Usuarios');
 
+//Iniciar sesion
+exports.formIniciarSesion = (req,res) => {
+    const { error } = res.locals.mensajes;
+
+    res.render('iniciarSesion',{
+        nombrePagina : 'Iniciar sesión en UpTask',
+        error
+    });
+}
+
 exports.formCrearCuenta = (req,res) => {
     res.render('crearCuenta',{
         nombrePagina : 'Crear cuenta en UpTask'
     });
 }
+
+
 
 //Crear
 exports.crearCuenta =async (req,res) => {
