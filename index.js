@@ -1,17 +1,25 @@
 
 const express = require('express');
-//importamos rutas
+//Importamos rutas
 const routes = require('./routes')
-//accedemos al directorio
+//Accedemos al directorio
 const path = require('path'); 
-//requerimos bodyParser
+//Requerimos bodyParser - request
 const bodyParser = require('body-parser');
-//bd
+//Express validator
+//const expressValidator = require('express-validator');
+//Requerimos flash messages
+const flash = require('connect-flash');
+//Requerimos express session y cookie parser
+const session = require('express-session');
+const cookieParser = require('cookie-parser');
+//Bd
 const db = require('./config/db');
-//importacion de modelo
+//Importacion de modelo
 require('./models/Proyectos');
 require('./models/Tareas');
-//helpers
+require('./models/Usuarios');
+//Helpers
 const helpers = require('./helpers');
 
 
@@ -26,25 +34,41 @@ db.sync()
 //crear una app de express
 const app = express();
 
-
-
 //archivos estaticos
 app.use(express.static('public'));
 
 //habilitar pug
 app.set('view engine','pug');
 
+// habilitar bodyParser para leer datos del formulario
+app.use(bodyParser.urlencoded({extended:true}));
+
+//Agregamos express validator a toda la app
+//app.use(expressValidator());
+
+
+
 //anañadir carpetas de vistas
 app.set('views',path.join(__dirname, './views')) //__dirname = directorio raiz
+
+//Agregar flash messages
+app.use(flash());
+
+//Sesiones para navegar en distintas paginas sin volvernos a autenticar
+app.use(session({
+    secret:'supersecreto',
+    resave:true,
+    saveUninitialized:false
+}))
 
 //pasar vardump a la app
 app.use((req, res, next)=>{
     res.locals.vardump = helpers.vardump;
+    res.locals.mensajes = req.flash(); //connect-flash
     next();
 });
 
-// habilitar bodyParser para leer datos del formulario
-app.use(bodyParser.urlencoded({extended:true}));
+
 
 //Rutas
 app.use('/',routes());
