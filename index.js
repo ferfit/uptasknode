@@ -68,9 +68,12 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 //pasar vardump a la app
+    //console.log(req.user);
 app.use((req, res, next)=>{
     res.locals.vardump = helpers.vardump;
     res.locals.mensajes = req.flash(); //connect-flash
+    res.locals.usuario = {...req.user} || null; //  console.log(res.locals.usuario); En esta variable capturamos los datos del usuario logeado, nos va servir al momento de crear el proyectoy este asignado a un usuario
+   
     next();
 });
 

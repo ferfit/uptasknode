@@ -4,7 +4,10 @@ const Tareas = require('../models/Tareas');
 
 
 exports.proyectosHome = async (req, res) => {
-    const proyectos = await Proyectos.findAll();
+    //id de usuario logeado
+    const usuarioId = res.locals.usuario.id;
+    const proyectos = await Proyectos.findAll({where:{usuarioId}});
+
     res.render('index', {
         nombrePagina: 'Proyectos',
         proyectos
@@ -14,7 +17,8 @@ exports.proyectosHome = async (req, res) => {
 //Crea un proyecto
 exports.formularioProyecto = async (req, res) => {
 
-    const proyectos = await Proyectos.findAll();
+    const usuarioId = res.locals.usuario.id;
+    const proyectos = await Proyectos.findAll({where:{usuarioId}});
 
     res.render('nuevoProyecto', {
         nombrePagina: 'Nuevo Proyecto',
@@ -25,7 +29,8 @@ exports.formularioProyecto = async (req, res) => {
 
 exports.nuevoProyecto = async (req, res) => {
 
-    const proyectos = await Proyectos.findAll();
+    const usuarioId = res.locals.usuario.id;
+    const proyectos = await Proyectos.findAll({where:{usuarioId}});
 
     //validacion
     const { nombre } = req.body;
@@ -45,26 +50,28 @@ exports.nuevoProyecto = async (req, res) => {
         })
     } else {
         //inserta en bbdd
-
-        await Proyectos.create({ nombre });
+        const usuarioId = res.locals.usuario.id;
+        await Proyectos.create({ nombre,usuarioId });
         res.redirect('/');
     }
 
 }
 
 exports.proyectoPorUrl = async (req, res, next) => {
-
     //Trae proyectos para aside
-    const proyectosPromise = Proyectos.findAll();
+    const usuarioId = res.locals.usuario.id;
+    const proyectosPromise = Proyectos.findAll({where:{usuarioId}});
 
     //trae proyecto 
     const proyectoPromise = Proyectos.findOne({
         where: {
-            url: req.params.url
+            url: req.params.url,
+            usuarioId
         }
     });
 
     const [proyectos, proyecto] = await Promise.all([proyectosPromise, proyectoPromise]);
+
 
     //Consulta tareas del proyecto
     const tareas = await Tareas.findAll({
@@ -91,11 +98,13 @@ exports.proyectoPorUrl = async (req, res, next) => {
 
 exports.formularioEditar = async (req, res) => {
 
-    const proyectosPromise = Proyectos.findAll();
+    const usuarioId = res.locals.usuario.id;
+    const proyectosPromise = Proyectos.findAll({where:{usuarioId}});
 
     const proyectoPromise = Proyectos.findOne({
         where: {
-            id: req.params.id
+            id: req.params.id,
+            usuarioId
         }
     });
 
@@ -110,7 +119,8 @@ exports.formularioEditar = async (req, res) => {
 
 exports.actualizarProyecto = async (req, res) => {
 
-    const proyectos = await Proyectos.findAll();
+    const usuarioId = res.locals.usuario.id;
+    const proyectos = await Proyectos.findAll({where:{usuarioId}});
 
     //validacion
     const { nombre } = req.body;
@@ -143,11 +153,14 @@ exports.actualizarProyecto = async (req, res) => {
 exports.eliminarProyecto = async (req, res, next) => {
     //console.log(req.params)
 
+    const usuarioId = res.locals.usuario.id;
+
     const { urlProyecto } = req.query;
 
     const resultado = await Proyectos.destroy({
         where: {
-            url: urlProyecto
+            url: urlProyecto,
+            usuarioId
         }
     });
 

@@ -12,7 +12,6 @@ const Proyectos = db.define('proyectos',{ //primer parametro = nombrar de la tab
 
     nombre: Sequelize.STRING(100), // forma reducida 
     url: Sequelize.STRING(100)
-
 },{
     hooks:{ //crea el slug
         beforeCreate(proyecto){
