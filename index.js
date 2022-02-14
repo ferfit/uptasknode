@@ -23,6 +23,8 @@ require('./models/Tareas');
 require('./models/Usuarios');
 //Helpers
 const helpers = require('./helpers');
+//Variables de entorno
+require('dotenv').config({ path:'variables.env'});
 
 
 
@@ -83,7 +85,16 @@ app.use((req, res, next)=>{
 app.use('/',routes());
 
 //corre en el puerto
-app.listen(3000);
+//app.listen(3000);
+//Servidor y puerto
+const host = process.env.HOST || '0.0.0.0';
+const port = process.env.PORT || '3000';
+
+app.listen(port,host,()=>{
+    console.log('El servidor esta funcionando');
+})
+
+
 
 //email - esta linea solo la utilzamos para probar el envio de email
 //require('./handlers/email');
