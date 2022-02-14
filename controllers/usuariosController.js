@@ -1,4 +1,5 @@
 const Usuarios = require('../models/Usuarios');
+const enviarEmail = require('../handlers/email');
 
 //Iniciar sesion
 exports.formIniciarSesion = (req,res) => {
@@ -30,6 +31,25 @@ exports.crearCuenta =async (req,res) => {
             email,
             password
         });
+
+        //Crear una url de confirmar cuenta
+        const confirmarUrl = `http://${req.headers.host}/confirmar/${email}`;
+
+        //Crear el objeto de usuario
+        const usuario = {
+            email
+        }
+
+        //Enviar email
+        await enviarEmail.enviar({
+            usuario,
+            subject: 'Confirmar cuenta',
+            confirmarUrl,
+            archivo: 'confirmar-cuenta' // archivo pug
+        })    
+
+        //Redirigir
+        req.flash('correcto','Te enviamos un correo para confirmar tu cuenta.');
         res.redirect('/iniciar-sesion');
 
     } catch (error) {
@@ -42,6 +62,8 @@ exports.crearCuenta =async (req,res) => {
         })
     }
 
+
+
     
 }
 
@@ -49,4 +71,28 @@ exports.formRestablecerPassword = (req,res)=>{
     res.render('reestablecer',{
         nombrePagina : 'Reestablecer tu contraseña'
     })
+}
+
+exports.confirmarCuenta = async (req,res) => {
+
+    const usuario = await Usuarios.findOne({
+        where:{
+            email: req.params.correo
+        }
+    })
+
+    //si no existe
+    if(!usuario){
+        req.flash('error','No valido');
+        res.redirect('/crear-cuenta');
+    }
+
+    //Si existe el usuario, cambiamos estado 
+    usuario.activo = 1;
+    await usuario.save();
+
+    //Redigir
+    req.flash('correcto','Cuenta activada correctamente');
+    res.redirect('/iniciar-sesion');
+
 }
