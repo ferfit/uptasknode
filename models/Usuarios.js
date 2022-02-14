@@ -33,7 +33,9 @@ const Usuarios = db.define('usuarios',{
                 msg:'El password no puede estar vacio'
             }
         }
-    }
+    },
+    token: Sequelize.STRING,
+    expiracion:Sequelize.DATE
 },{
     hooks:{ //hooks que se ejecuta antes de crear el usuario - hashe campo password
         beforeCreate(usuario){

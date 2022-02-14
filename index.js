@@ -85,4 +85,7 @@ app.use('/',routes());
 //corre en el puerto
 app.listen(3000);
 
+//email - esta linea solo la utilzamos para probar el envio de email
+//require('./handlers/email');
+
 
